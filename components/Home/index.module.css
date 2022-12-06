@@ -1,0 +1,9 @@
+.app {
+  width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  row-gap: 20px;
+}
