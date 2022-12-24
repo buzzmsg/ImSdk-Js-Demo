@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./index.module.css";
-import { ChatView, IMSdk, LogModeEnum, Provider, UserInfo, ConversationViewModel } from "imsdkweb";
+import { ChatView, ConversationViewModel, IMSdk, LogModeEnum, Provider, UserInfo } from "imsdkweb";
 import {
   Badge,
   Button,
@@ -23,6 +23,7 @@ import { ButtonProps } from "antd/lib/button/button";
 const getImage = () => {
   return `https://api.multiavatar.com/${Math.random().toString(36).slice(-6)}.png`;
 };
+const demoAChatId = '4749e5c76e1fa2fc_8792c0452ef24822'
 const App = () => {
   const [aChatId, setAChatId] = useState<string>();
   const [prefix, setPrefix] = useState<string>("86");
@@ -30,7 +31,7 @@ const App = () => {
   const sdkRef = useRef<IMSdk>();
   const [loginStatus, setLoginStatus] = useState<"loading" | "success" | "fail">();
   const [content, setContent] = useState("");
-  const [auidChat, setAuidChat] = useState("8792c0452ef24822");
+  const [auidChat, setAuidChat] = useState("");
   const [attachmentList, setAttachmentList] = useState<UploadFile[]>([]);
   const [conViewModel, setConViewModel] = useState<ConversationViewModel>();
   const [autoLogin, setAutoLogin] = useState(Number(localStorage.getItem("autoLogin") ?? 0) === 1);
@@ -52,19 +53,18 @@ const App = () => {
   };
 
   const initSdk = () => {
-    const sdk = IMSdk.getInstance(constants.ak, "pro");
+    const sdk = IMSdk.getInstance(constants.ak, "pro", "win");
     sdk.setDelegate({
-      authCodeExpire() {
+      async authCodeExpire() {
         if (constants.authcode.length > 0) {
-          sdk.setAuthCode(constants.authcode);
+          await sdk.setAuthCode(constants.authcode);
           return;
         }
 
-        onGetAuth().then(() => {
-          sdk.setAuthCode(constants.authcode);
-        });
+        await onGetAuth();
+        await sdk.setAuthCode(constants.authcode);
       },
-      onShowUserinfo(auids) {
+      onShowUserInfo(auids) {
         const infos: UserInfo[] = auids.map((auid) => ({
           auid,
           item: {
@@ -82,12 +82,8 @@ const App = () => {
     sdkRef.current = sdk;
   };
 
-  const initUser = () => {
-    try {
-      sdkRef.current?.initUser(constants.auid);
-    } catch (e) {
-      console.log(e);
-    }
+  const initUser = async () => {
+    await sdkRef.current?.initUser(constants.auid);
   };
 
   const login = async () => {
@@ -112,8 +108,9 @@ const App = () => {
       // open debug mode
       IMSdk.setLogMode(LogModeEnum.debug);
       initSdk();
-      initUser();
+      await initUser();
       setLoginStatus("success");
+      setAChatId(demoAChatId);
     } catch (e: any) {
       setLoginStatus("fail");
       message.error(`登录失败：${e.message}`);
@@ -129,7 +126,7 @@ const App = () => {
       message.info("please login first");
       return;
     }
-    const chatId = "key_chat_id";
+    const chatId = [auidChat, constants.auid].sort().join("_");
     sdkRef.current?.createChat({
       aChatId: chatId,
       auids: [auidChat],
@@ -220,7 +217,17 @@ const App = () => {
     console.log(amid, buttonId);
   };
 
+  const onShowCustomMessageView = (amid: string, content: string) => {
+    return (
+      <div style={{ padding: 16, fontWeight: "bold" }}>
+        <h2>CustomView:</h2>
+        amid：{amid}，content：{content}
+      </div>
+    );
+  };
+
   const onConversationItemClick = (aChatId: string) => {
+    setAChatId(aChatId);
     console.log(aChatId);
   };
 
@@ -237,7 +244,7 @@ const App = () => {
       imageData: getImage(),
       content: "test content",
     });
-    conViewModel?.updateSelector([], ["key_chat_id"]);
+    conViewModel?.updateSelector([], [demoAChatId]);
   };
 
   const removeFolder = () => {
@@ -247,18 +254,18 @@ const App = () => {
 
   const setConversationSubTitle = () => {
     sdkRef.current?.setConversationSubTitle({
-      subTitles: [{ aChatId: "key_chat_id", subTitle: "my subTitle" }],
+      subTitles: [{ aChatId: demoAChatId, subTitle: "my subTitle" }],
     });
   };
 
   const setConversationMarker = () => {
     sdkRef.current?.setConversationMarker({
-      markers: [{ aChatId: "key_chat_id", icon: getImage() }],
+      markers: [{ aChatId: demoAChatId, icon: getImage() }],
     });
   };
 
   const setConversationMute = (isMute: boolean) => {
-    sdkRef.current?.setConversationMute("key_chat_id", isMute);
+    sdkRef.current?.setConversationMute(demoAChatId, isMute);
   };
 
   const onAutoLoginChange = (auto: boolean) => {
@@ -266,8 +273,6 @@ const App = () => {
     if (auto) localStorage.setItem("autoLogin", "1");
     else localStorage.removeItem("autoLogin");
   };
-
-  const setSelector = () => {};
 
   const getBtn = (body: string, onClick: () => void, buttonProps?: ButtonProps) => {
     return (
@@ -284,11 +289,7 @@ const App = () => {
       title: "Base",
       items: [
         getBtn("Logout", logout),
-        getBtn("Test", () => {
-          conViewModel?.updateSelector([], ["key_chat_id"]);
-        }),
-        getBtn("Test1", () => {
-          conViewModel?.updateSelector([], []);
+        getBtn("test", () => {
         }),
         <Space key="autoLogin">
           <Switch checked={autoLogin} onChange={onAutoLoginChange} />
@@ -317,6 +318,36 @@ const App = () => {
         getBtn("Set Marker", setConversationMarker),
         getBtn("Set Mute true", () => setConversationMute(true)),
         getBtn("Set Mute false", () => setConversationMute(false)),
+        getBtn("Selector", () => {
+          conViewModel?.updateSelector([demoAChatId], []);
+        }),
+        getBtn("Selector All", () => {
+          conViewModel?.updateSelector([], []);
+        }),
+        getBtn("Set Chat Top", () => {
+          conViewModel?.setChatTop({
+            aChatId: demoAChatId,
+            onSuccess: () => {
+              console.log("success");
+            },
+          });
+        }),
+        getBtn("Set Chat Top False", () => {
+          conViewModel?.setChatCloseTop({
+            aChatId: demoAChatId,
+            onSuccess: () => {
+              console.log("success");
+            },
+          });
+        }),
+        getBtn("Get Chat Top", () => {
+          conViewModel?.getChatIsTop({
+            aChatId: demoAChatId,
+            callback: (isTop) => {
+              console.log(isTop);
+            },
+          });
+        }),
       ],
     },
   ];
@@ -399,6 +430,7 @@ const App = () => {
                   onCardMessageClick,
                   onMiddleMessageClick,
                   onNotificationMessageClick,
+                  onShowCustomMessageView,
                 }}
               />
             </Col>

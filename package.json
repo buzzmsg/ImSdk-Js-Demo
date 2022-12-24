@@ -10,11 +10,12 @@
     "serve": "npm run build && npm run start"
   },
   "dependencies": {
-    "imsdkweb": "^0.0.15",
+    "imsdkweb": "^0.0.21",
     "antd": "^4.5.1",
     "next": "11.1.4",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "react-router-dom": "^4.2.2"
   },
   "devDependencies": {
     "@types/react": "17.0.2",
