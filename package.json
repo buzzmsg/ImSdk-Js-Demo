@@ -1,6 +1,6 @@
 {
   "name": "IMSdk-Web-Demo",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": false,
   "scripts": {
     "dev": "next dev",
@@ -10,14 +10,16 @@
     "serve": "npm run build && npm run start"
   },
   "dependencies": {
-    "imsdkweb": "^0.0.21",
     "antd": "^4.5.1",
+    "imsdkweb": "^0.0.51",
+    "md5": "^2.3.0",
+    "nanoid": "^4.0.1",
     "next": "11.1.4",
     "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "react-router-dom": "^4.2.2"
+    "react-dom": "17.0.2"
   },
   "devDependencies": {
+    "@types/md5": "^2.3.2",
     "@types/react": "17.0.2",
     "typescript": "4.9.3"
   }

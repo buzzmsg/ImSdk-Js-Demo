@@ -1,3 +1,3 @@
 ﻿# IMSdk-Web-Demo
 
-sdk document：https://shimo.im/docs/B1Aw1lyVDgfYbYqm
+sdk document：https://shimo.im/docs/LfSep3MinZALlNgY

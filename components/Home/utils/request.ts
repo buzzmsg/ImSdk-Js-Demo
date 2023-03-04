@@ -1,4 +1,4 @@
-import axios, {AxiosRequestConfig} from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 
 interface Result {
   code: number;
@@ -8,18 +8,11 @@ interface Result {
 
 export const request = axios.create({
   timeout: 10000,
-  baseURL: "https://dev-sdkdemo.imtmm.com:7504",
+  baseURL: "https://demo-sdk-test-api.buzzmsg.com",
 });
 
-request.interceptors.request.use((value) => {
-  if (value.url?.startsWith('/api/')) {
-    value.url = value.url?.replace('/api', '')
-  }
-  return value
-})
-
 request.interceptors.response.use((value) => {
-  const {status} = value;
+  const { status } = value;
   const data: Result = value.data;
   if (status === 200 && data?.code === 200) {
     return data.data;
