@@ -1,6 +1,6 @@
 {
-  "name": "IMSdk-Web-Demo",
-  "version": "0.0.2",
+  "name": "ImSdk-Js-Demo",
+  "version": "0.0.1",
   "private": false,
   "scripts": {
     "dev": "next dev",
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "antd": "^4.5.1",
-    "imsdkweb": "^0.0.51",
+    "buzzmsg": "^1.0.0",
     "md5": "^2.3.0",
     "nanoid": "^4.0.1",
     "next": "11.1.4",

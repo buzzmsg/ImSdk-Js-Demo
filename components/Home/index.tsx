@@ -15,7 +15,7 @@ import {
   IMEnvironmentType,
   IMMessageMenuType,
   ChatViewProps,
-} from "imsdkweb";
+} from "buzzmsg";
 import {
   Badge,
   Button,
